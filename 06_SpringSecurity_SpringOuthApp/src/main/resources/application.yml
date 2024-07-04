@@ -1,0 +1,14 @@
+server:
+  port: 9999
+  
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+         facebook:
+          clientId: 262236473439408
+          clientSecret: a7c16779f63d607d28729638173025bd
+          scope:
+           - email
+           - public_profile
