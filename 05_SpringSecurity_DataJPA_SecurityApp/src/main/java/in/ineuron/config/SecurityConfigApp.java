@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import in.ineuron.service.IUserService;
 
@@ -41,8 +42,24 @@ public class SecurityConfigApp {
 	@Bean
 	public SecurityFilterChain configure(HttpSecurity http) throws Exception{
 		http.authorizeHttpRequests()
-		.requestMatchers("/user/register","/user/showLogin").permitAll().anyRequest().authenticated()
-		.and().formLogin();
+		.requestMatchers("/bank/").permitAll()
+		.requestMatchers("/bank/offers").authenticated()
+		.requestMatchers("/bank/balance").hasAnyAuthority("CUSTOMER","MANAGER")
+		.requestMatchers("/bank/loanApprove").hasAuthority("MANAGER")
+		.requestMatchers("/user/register","/user/showLogin").permitAll()
+		.anyRequest().authenticated()
+		.and().formLogin()
+		.defaultSuccessUrl("/bank/",true)
+		.loginPage("/user/showLogin")
+		.loginProcessingUrl("/login")
+		.failureUrl("/user/showLogin?error")
+		.and().rememberMe()
+		.and().logout()
+		.logoutRequestMatcher(new AntPathRequestMatcher("/signout"))
+		.logoutSuccessUrl("/user/showLogin?logout")
+		.and().exceptionHandling()
+		.accessDeniedPage("/denied")
+		.and().sessionManagement().maximumSessions(2).maxSessionsPreventsLogin(true);
 		return http.build();
 	}
 
